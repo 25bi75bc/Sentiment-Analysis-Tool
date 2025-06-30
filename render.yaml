@@ -3,5 +3,6 @@ services:
     name: sentiment-dashboard
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: ~/.venv/bin/gunicorn app:app
+    startCommand: /opt/venv/bin/gunicorn app:app
+
     plan: free
