@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sentiment Results</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+    .button-link {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .button-link:hover {
+      background-color: #0056b3;
+    }
+    .button-link-green {
+      background-color: #28a745;
+    }
+    .button-link-green:hover {
+      background-color: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎯 {{ mode }} Sentiment Summary</h2>
+
+  <p><strong>Here’s your analysis!</strong></p>
+
+  <h3>Sentiment Breakdown</h3>
+  <ul style="list-style: none; padding: 0;">
+    <li><strong>Total comments analyzed:</strong> {{ stats.total_comments }}</li>
+    <li><strong>Positive:</strong> {{ stats.positive }}</li>
+    <li><strong>Negative:</strong> {{ stats.negative }}</li>
+    <li><strong>Neutral:</strong> {{ stats.neutral }}</li>
+    <li><strong>Likely sarcastic:</strong> {{ stats.sarcastic }}</li>
+  </ul>
+
+  <img src="{{ url_for('static', filename='results/' + image_file) }}" alt="Sentiment Analysis Summary">
+
+  <a href="{{ url_for('static', filename='results/' + image_file) }}" download class="button-link">📥 Download Summary Chart</a>
+
+
+  <br>
+  <a href="/eval" class="button-link button-link-green">📊 View Model Evaluation</a>
+  <br>
+  <a href="/" class="button-link">🔁 Analyze Another Post</a>
+</body>
+</html>
+
