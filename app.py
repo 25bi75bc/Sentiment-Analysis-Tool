@@ -152,5 +152,3 @@ if __name__ == "__main__":
 def healthz():
     return "OK", 200
 
-
-
