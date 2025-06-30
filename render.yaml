@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: sentiment-dashboard
+    env: python
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python3 app.py
+    plan: free
