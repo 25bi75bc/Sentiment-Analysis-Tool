@@ -140,17 +140,10 @@ def model_eval():
             "f1": "f1_scores.png"
         }
     })
-import webbrowser
-import threading
+import os
 
-def open_browser():
-    webbrowser.open_new("http://127.0.0.1:5000/")
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
-if __name__ == '__main__':
-    threading.Timer(1.25, open_browser).start()  # wait 1.25 sec, then open browser
-    app.run(debug=True)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
