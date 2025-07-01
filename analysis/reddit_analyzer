@@ -15,16 +15,22 @@ reddit = praw.Reddit(
     user_agent="sentimentality by u/Natural_Mix6280"
 )
 
-# === NLP & SENTIMENT SETUP ===
-nlp = spacy.load("en_core_web_sm")
+# === GLOBALS ===
 stopwords_set = set(stopwords.words("english"))
 excluded_words = {"http", "https", "www", "com", "score", "rank", "ps3", "x", "1", "2", "3", "85"}
 sentiment_pipeline = pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
+_nlp = None  # Will store the loaded spaCy model
+
+def get_nlp():
+    global _nlp
+    if _nlp is None:
+        _nlp = spacy.load("en_core_web_sm", disable=["parser", "tagger", "lemmatizer"])
+    return _nlp
 
 def clean_text(text):
     text = text.lower()
     text = re.sub(r"\W", " ", text)
-    doc = nlp(text)
+    doc = get_nlp()(text)
     return " ".join([t.text for t in doc if t.text not in stopwords_set and t.text not in excluded_words])
 
 def get_sentiments(texts):
@@ -32,7 +38,6 @@ def get_sentiments(texts):
     for i in tqdm(range(0, len(texts), 32), desc="🔍 BERT Sentiment"):
         batch = texts[i:i+32]
         results = sentiment_pipeline(batch, truncation=True, max_length=512)
-
         for res in results:
             label = res["label"]
             if label in ["5 stars", "4 stars"]:
@@ -107,10 +112,9 @@ def analyze_reddit_post(post_url, output_dir):
         ax2.axis("off")
         ax2.set_title("Negative Word Cloud")
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
     summary_path = os.path.join(output_dir, f"{base}_Summary.png")
-    plt.savefig(summary_path)
-    plt.close()
+    fig.savefig(summary_path, bbox_inches='tight')
+    plt.close(fig)
 
     stats = {
         "total_comments": len(texts_cleaned),
@@ -121,3 +125,4 @@ def analyze_reddit_post(post_url, output_dir):
     }
 
     return summary_path, stats, sentiments
+
