@@ -1,3 +1,7 @@
 "app.exe" 
 "build/app/app.pkg" 
 "dist/app.exe" 
+app.exe 
+build/app/app.pkg 
+dist/app.exe 
+build/app/PYZ-00.pyz 
