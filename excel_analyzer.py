@@ -10,16 +10,22 @@ from nltk.corpus import stopwords
 from transformers import pipeline
 from wordcloud import WordCloud
 
-# === NLP Setup ===
-nlp = spacy.load("en_core_web_sm")
+# === GLOBALS ===
 stopwords_set = set(stopwords.words("english"))
 excluded_words = {"http", "https", "www", "com", "score", "rank", "ps3", "x", "1", "2", "3", "85"}
 sentiment_pipeline = pipeline("sentiment-analysis", model="nlptown/bert-base-multilingual-uncased-sentiment")
+_nlp = None
+
+def get_nlp():
+    global _nlp
+    if _nlp is None:
+        _nlp = spacy.load("en_core_web_sm", disable=["parser", "tagger", "lemmatizer"])
+    return _nlp
 
 def clean_text(text):
     text = text.lower()
     text = re.sub(r"\W", " ", text)
-    doc = nlp(text)
+    doc = get_nlp()(text)
     return " ".join([t.text for t in doc if t.text not in stopwords_set and t.text not in excluded_words])
 
 def get_sentiments(texts):
@@ -27,7 +33,6 @@ def get_sentiments(texts):
     for i in tqdm(range(0, len(texts), 32), desc="🔍 BERT Sentiment"):
         batch = texts[i:i+32]
         results = sentiment_pipeline(batch, truncation=True, max_length=512)
-
         for res in results:
             label = res["label"]
             if label in ["5 stars", "4 stars"]:
@@ -73,7 +78,6 @@ def analyze_excel_file(file_path, output_dir="static/results"):
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
     label = f"{base}_{timestamp_str}"
 
-    # === Determine if timestamps exist
     has_time = "timestamp" in df.columns
     if has_time:
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
@@ -82,12 +86,11 @@ def analyze_excel_file(file_path, output_dir="static/results"):
         df_time.set_index("timestamp", inplace=True)
         time_bins = df_time.groupby([pd.Grouper(freq="30min"), "sentiment"]).size().unstack(fill_value=0)
 
-    # === Plot ===
+    # === Plotting ===
     fig = plt.figure(figsize=(20, 12))
     fig.suptitle(f"Sentiment Summary: {base}\n{timestamp_str}", fontsize=16, y=0.99)
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 2])
 
-    # Top-Left Plot: Time-Series or Fallback Histogram
     if has_time and not df_time.empty:
         ax0 = fig.add_subplot(gs[0, 0])
         time_bins.plot(ax=ax0, linewidth=2, color={"POSITIVE": "green", "NEGATIVE": "red", "NEUTRAL": "gray"})
@@ -103,14 +106,11 @@ def analyze_excel_file(file_path, output_dir="static/results"):
         ax0.set_xlabel("Words per Comment")
         ax0.set_ylabel("Frequency")
 
-    # Top-Right: Pie Chart
-    pie_counts = [len(pos), len(neg), len(neu)]
     ax_pie = fig.add_subplot(gs[0, 1])
-    ax_pie.pie(pie_counts, labels=["Positive", "Negative", "Neutral"],
-               autopct="%1.1f%%", colors=["green", "red", "gray"])
+    pie_counts = [len(pos), len(neg), len(neu)]
+    ax_pie.pie(pie_counts, labels=["Positive", "Negative", "Neutral"], colors=["green", "red", "gray"], autopct="%1.1f%%", startangle=90)
     ax_pie.set_title("Overall Sentiment")
 
-    # Bottom: Word Clouds
     if pos:
         ax1 = fig.add_subplot(gs[1, 0])
         ax1.imshow(make_wordcloud(pos, "Greens"), interpolation="bilinear")
@@ -123,16 +123,14 @@ def analyze_excel_file(file_path, output_dir="static/results"):
         ax2.axis("off")
         ax2.set_title("Negative Word Cloud")
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
     summary_path = os.path.join(output_dir, f"{label}_Summary.png")
-    plt.savefig(summary_path)
-    plt.close()
+    fig.savefig(summary_path, bbox_inches="tight")
+    plt.close(fig)
 
     df["clean_text"] = texts_cleaned
     df["predicted_sentiment"] = sentiments
     df["sarcastic_flag"] = sarcasm_flags
-
-    df.to_excel(f"data/{label}_labeled.xlsx", index=False)  # Still saved locally for dev access
+    df.to_excel(f"data/{label}_labeled.xlsx", index=False)
 
     stats = {
         "total_comments": len(texts_cleaned),
