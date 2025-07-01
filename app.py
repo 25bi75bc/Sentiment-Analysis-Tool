@@ -11,7 +11,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from analysis import reddit_analyzer
+from analysis.reddit_analyzer import analyze_reddit_post
+
 from excel_analyzer import analyze_excel_file
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -30,7 +31,8 @@ def index():
 
         if reddit_url.startswith("http"):
             try:
-                summary_path, stats, predictions = reddit_analyzer.analyze_reddit_post(reddit_url, results_dir)
+                summary_path, stats, predictions = analyze_reddit_post(reddit_url, results_dir)
+
                 image_filename = os.path.basename(summary_path)
 
                 latest_eval_data = {
