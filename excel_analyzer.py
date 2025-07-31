@@ -9,6 +9,8 @@ from datetime import datetime
 from nltk.corpus import stopwords
 from transformers import pipeline
 from wordcloud import WordCloud
+from analysis.text_utils import mask_swearwords
+
 
 # === GLOBALS ===
 stopwords_set = set(stopwords.words("english"))
@@ -71,9 +73,9 @@ def analyze_excel_file(file_path, output_dir="static/results"):
     sentiments = get_sentiments(texts_cleaned)
     sarcasm_flags = [is_likely_sarcastic(t, s) for t, s in zip(texts_cleaned, sentiments)]
 
-    pos = [t for t, s in zip(texts_cleaned, sentiments) if s == "POSITIVE"]
-    neg = [t for t, s in zip(texts_cleaned, sentiments) if s == "NEGATIVE"]
-    neu = [t for t, s in zip(texts_cleaned, sentiments) if s == "NEUTRAL"]
+    pos = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "POSITIVE"]
+    neg = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "NEGATIVE"]
+    neu = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "NEUTRAL"]
 
     base = os.path.splitext(os.path.basename(file_path))[0]
     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M")
