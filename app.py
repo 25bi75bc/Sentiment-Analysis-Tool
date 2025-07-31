@@ -38,7 +38,7 @@ def index():
                 from analysis.text_utils import mask_swearwords
                 masked_url = mask_swearwords(reddit_url)
 
-                summary_path, stats, predictions = analyze_reddit_post(reddit_url, results_dir)
+                summary_path, stats, predictions = analyze_reddit_post(masked_url, results_dir)
 
                 image_filename = os.path.basename(summary_path)
 
