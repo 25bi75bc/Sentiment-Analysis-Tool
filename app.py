@@ -11,6 +11,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import better_profanity
+
+from analysis.text_utils import mask_swearwords
+
 from analysis.reddit_analyzer import analyze_reddit_post
 
 from excel_analyzer import analyze_excel_file
@@ -31,6 +35,9 @@ def index():
 
         if reddit_url.startswith("http"):
             try:
+                from analysis.text_utils import mask_swearwords
+                masked_url = mask_swearwords(reddit_url)
+
                 summary_path, stats, predictions = analyze_reddit_post(reddit_url, results_dir)
 
                 image_filename = os.path.basename(summary_path)
@@ -151,4 +158,6 @@ if __name__ == "__main__":
 @app.route("/healthz")
 def healthz():
     return "OK", 200
+
+
 
