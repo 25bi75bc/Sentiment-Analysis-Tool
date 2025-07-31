@@ -7,6 +7,8 @@ from wordcloud import WordCloud
 from nltk.corpus import stopwords
 from tqdm import tqdm
 from datetime import datetime
+from analysis.text_utils import mask_swearwords
+
 
 # === REDDIT SETUP ===
 reddit = praw.Reddit(
@@ -65,9 +67,9 @@ def analyze_reddit_post(post_url, output_dir):
     sentiments = get_sentiments(texts_cleaned)
     sarcasm_flags = [is_likely_sarcastic(text, sentiment) for text, sentiment in zip(texts_cleaned, sentiments)]
 
-    pos = [t for t, s in zip(texts_cleaned, sentiments) if s == "POSITIVE"]
-    neg = [t for t, s in zip(texts_cleaned, sentiments) if s == "NEGATIVE"]
-    neu = [t for t, s in zip(texts_cleaned, sentiments) if s == "NEUTRAL"]
+    pos = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "POSITIVE"]
+    neg = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "NEGATIVE"]
+    neu = [mask_swearwords(t) for t, s in zip(texts_cleaned, sentiments) if s == "NEUTRAL"]
 
     df_time = pd.DataFrame({"timestamp": timestamps, "sentiment": sentiments})
     df_time["timestamp"] = pd.to_datetime(df_time["timestamp"])
