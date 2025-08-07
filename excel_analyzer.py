@@ -138,7 +138,7 @@ def analyze_excel_file(file_path, output_dir="static/results"):
     plt.close(fig)
 
     df["clean_text"] = texts_cleaned
-    df["predicted_sentiment"] = sentiments
+    df["predicted_sentiment"] = sentiments 
     df["sarcastic_flag"] = sarcasm_flags
     df.to_excel(f"data/{label}_labeled.xlsx", index=False)
 
