@@ -10,7 +10,7 @@ OUTPUT_FILE = "data/true_labels.csv"
 os.makedirs("data", exist_ok=True)
 
 # Load comments once (they won't change during session)
-with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
+with open(COMMENTS_FILE, "r", encoding="utf-8") as f: 
     comments = json.load(f)
 
 @app.route("/")
