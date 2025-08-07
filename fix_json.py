@@ -12,6 +12,6 @@ objects = [json.loads(line) for line in lines]
 
 # Save cleaned JSON array
 with open("data/comments_to_label.json", "w", encoding="utf-8") as f:
-    json.dump(objects, f, indent=2)
+    json.dump(objects, f, indent=2) 
 
 print("✅ comments_to_label.json has been cleaned and fixed.")
